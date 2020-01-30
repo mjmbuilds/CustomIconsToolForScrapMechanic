@@ -6,6 +6,8 @@ I created this tool to patch the generated icon maps with custom icons for speci
 
 This is useful if you want to use some custom icons, but don't want to manually re-edit the icon map using an image editor every time you add something new to your mod.
 
+![](images/screenshot01.png)
+
 To use this tool, you would first generate you icon map using the official mod tool, then run this tool to patch the custom icons. 
 
 The settings file stores selected Mods as file paths to the mod along with a list of UUIDs for the items which get custom icons. The settings file must remain in the same floder as the program exicutable.
