@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IconPatcher"
         mc:Ignorable="d"
-        Title="Custom Icon Tool for Scrap Mechanic" Height="600" Width="600"
+        Title="MJMBuilds - Custom Icon Tool for Scrap Mechanic" Height="600" Width="600"
         ResizeMode="NoResize"
         >
     <Window.Resources>
