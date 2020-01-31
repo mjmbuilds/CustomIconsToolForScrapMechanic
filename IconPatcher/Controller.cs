@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Xml;
 
 namespace IconPatcher
 {
@@ -53,7 +54,7 @@ namespace IconPatcher
             {
                 using (StreamWriter sw = new StreamWriter("IconPatcherSettings.json"))
                 {
-                    string jsonString = JsonConvert.SerializeObject(_model, Formatting.Indented);
+                    string jsonString = JsonConvert.SerializeObject(_model, Newtonsoft.Json.Formatting.Indented);
                     sw.Write(jsonString);
                     FooterMessage("Saved");
                 }
@@ -217,28 +218,30 @@ namespace IconPatcher
                                 int x = 0; // custom icon X location
                                 int y = 0; // custom icon Y location 
                                 bool xmlMatchFound = false;
-                                var lines = File.ReadLines(iconXMLPath); // open the xml file
-                                foreach (var line in lines)
+
+                                // parse the xml file for the coordinates
+                                XmlTextReader xtr = new XmlTextReader(iconXMLPath);
+                                while (xtr.Read())
                                 {
-                                    // if previous line matched, parse the coordinates from this line
-                                    if (xmlMatchFound) 
+                                    // if node has attribute 'name' matching the uuid
+                                    if (xtr.GetAttribute("name") == partUUID)
                                     {
-                                        /* Line will look like this example: <Frame point="74 74"/>
-                                         * Following code gets index of the first quote and length to the second quote 
-                                         * then splits a substring by the space and casts the numbers to X and Y ints */
-                                        int substringStart = line.IndexOf('"') + 1;
-                                        int substringLen = line.IndexOf('"', substringStart) - substringStart;
-                                        string[] strCoords = line.Substring(substringStart, substringLen).Split(" ");
-                                        x = int.Parse(strCoords[0]);
-                                        y = int.Parse(strCoords[1]);
+                                        xmlMatchFound = true;
+                                        while (xtr.Read()) // now search for the next coordinates
+                                        {
+                                            if (xtr.NodeType == XmlNodeType.Element && xtr.Name == "Frame")
+                                            {
+                                                // split 'point' attribute into two ints for x and y coordinates
+                                                string[] pointArr = xtr.GetAttribute("point").Split(" ");
+                                                x = int.Parse(pointArr[0]);
+                                                y = int.Parse(pointArr[1]);
+                                                break;
+                                            }
+                                        }
                                         break;
                                     }
-                                    // if a match found in this line, set flag so next line will be parsed
-                                    if (line.Contains(partUUID))
-                                    {
-                                        xmlMatchFound = true; 
-                                    }
                                 }
+                                xtr.Close();
 
                                 if (xmlMatchFound) // check if UUID match location was found in xml
                                 {
@@ -252,7 +255,7 @@ namespace IconPatcher
                                     errors += $"\n\nERROR: Could not find UUID {partUUID} in IconMap.xml";
                                 }
                             }
-                            catch (Exception) // catches exception if Bitmap for customIcon fails
+                            catch (Exception e) // catches exception if Bitmap for customIcon fails
                             {
                                 errors += $"\n\nERROR: Could not find icon {partUUID}.png";
                             }
@@ -332,42 +335,48 @@ namespace IconPatcher
                     int x = 0;
                     int y = 0;
 
-                    var lines = File.ReadLines(iconXMLPath); // open the xml file
-                    foreach (var line in lines) // parse xml file for 
+                    XmlTextReader xtr = new XmlTextReader(iconXMLPath);
+                    while (xtr.Read())
                     {
-                        if (uuid != "" && uuid != "Empty") // if previous line set a uuid
+                        // if node is an element called 'Index'. Ex: <Index ... >
+                        if (xtr.NodeType == XmlNodeType.Element && xtr.Name == "Index")
                         {
-                            // parse line for coordinates
-                            int substringStart = line.IndexOf('"') + 1;
-                            int substringLen = line.IndexOf('"', substringStart) - substringStart;
-                            string[] strCoords = line.Substring(substringStart, substringLen).Split(" ");
-                            x = int.Parse(strCoords[0]);
-                            y = int.Parse(strCoords[1]);
-
-                            singleIcon = iconMap.Clone(new Rectangle(x, y, 74, 74), iconMap.PixelFormat); // crop icon from IconMap
-
                             try
                             {
-                                singleIcon.Save($"{exportPath}\\{uuid}.png", ImageFormat.Png); // save individual icon
+                                // get the attribute called 'name'. Ex: name="..."
+                                uuid = xtr.GetAttribute("name");
+
+                                // skip node with the name "Empty"
+                                if (uuid == "Empty") continue;
+
+                                // get the coordinates that go with the uuid
+                                while (xtr.Read())
+                                {
+                                    // if node is an element called 'Frame'. Ex: <Frame ... >
+                                    if (xtr.NodeType == XmlNodeType.Element && xtr.Name == "Frame")
+                                    {
+                                        // split 'point' attribute into two ints for x and y coordinates
+                                        string[] pointArr = xtr.GetAttribute("point").Split(" ");
+                                        x = int.Parse(pointArr[0]);
+                                        y = int.Parse(pointArr[1]);
+                                        break;
+                                    }
+                                }
+
+                                // crop icon at x,y coordinates and save it as {uuid}.png
+                                singleIcon = iconMap.Clone(new Rectangle(x, y, 74, 74), iconMap.PixelFormat);
+                                singleIcon.Save($"{exportPath}\\{uuid}.png", ImageFormat.Png);
+                                singleIcon.Dispose();
                                 successCount++;
                             }
-                            catch (Exception)
+                            catch (Exception e)
                             {
                                 failCount++;
                             }
-
-                            singleIcon.Dispose();
-                            uuid = ""; // clear uuid
-                        }
-                        if (line.Contains("<I")) // lines containing the uuid start with "<I"
-                        {
-                            // parse line for uuid
-                            int substringStart = line.IndexOf('"') + 1;
-                            int substringLen = line.IndexOf('"', substringStart) - substringStart;
-                            uuid = line.Substring(substringStart, substringLen);
                         }
                     }
-                    
+                    xtr.Close();
+
                     iconMap.Dispose(); // dispose iconMap
                     if (singleIcon != null) singleIcon.Dispose(); // dispose singleIcon
 
