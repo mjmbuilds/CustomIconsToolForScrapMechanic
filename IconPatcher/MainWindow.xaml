@@ -131,7 +131,7 @@
 
         <!-- Footer ************************************************************** -->
         <StackPanel Grid.Row="1" x:Name="FooterPanel" HorizontalAlignment="Stretch" Background="LightGray">
-            <TextBlock x:Name="FooterText" Text="Footer" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="FooterText" Text="" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <!-- Add Part Overlay ***************************************************** -->
