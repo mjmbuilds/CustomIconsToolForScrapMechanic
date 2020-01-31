@@ -24,6 +24,7 @@ namespace IconPatcher
             _view = mainWindow; // set reference to View
             _view.DataContext = _model; // set data context for View
             _view.ListViewMods.ItemsSource = _model.Mods; // set source of Mods ListView
+            UpdateButtonsEnabled(); // set enable status of buttons
         }
 
         // Attempt to load previous settings/state of program, else return a new Model
@@ -150,12 +151,17 @@ namespace IconPatcher
         // Update the enabled status of buttons
         private void UpdateButtonsEnabled()
         {
-            // Check if "Generate Icons" Button should be enabled
+            // Check if "Generate IconMap" and "Export Icons" Buttons should be enabled
             if (_view.ListViewParts.Items.Count > 0)
             {
                 _view.BtnGenerateIcons.IsEnabled = true;
+                _view.BtnExportIcons.IsEnabled = true;
             }
-            else _view.BtnGenerateIcons.IsEnabled = false;
+            else
+            {
+                _view.BtnGenerateIcons.IsEnabled = false;
+                _view.BtnExportIcons.IsEnabled = false;
+            }
 
             // Check if "Remove Mod" and "Add Part" Buttons should be enabled
             if (_view.ListViewMods.SelectedItem != null)
@@ -308,9 +314,9 @@ namespace IconPatcher
                 int successCount = 0; // number of icons successfuly exported
                 int failCount = 0; // number of icons failed to exported
 
-                if (!Directory.Exists(exportPath))
+                if (!Directory.Exists(exportPath)) // create export directory if it doesn't exist
                 {
-                    Directory.CreateDirectory(exportPath); // create directory
+                    Directory.CreateDirectory(exportPath); 
                 }
 
                 try
@@ -319,51 +325,49 @@ namespace IconPatcher
                     {
                         throw new Exception(); // if IconMap.xml wasn't found, throw exteption
                     }
-                    Bitmap singleIcon = null; // for individual icons
+
                     Bitmap iconMap = new Bitmap(iconMapPathOrig); // load the original iconMap image
+                    Bitmap singleIcon = null; // for individual icons
+                    string uuid = "";
+                    int x = 0;
+                    int y = 0;
 
-                    using (Graphics gr = Graphics.FromImage(iconMap))
+                    var lines = File.ReadLines(iconXMLPath); // open the xml file
+                    foreach (var line in lines) // parse xml file for 
                     {
-                        string uuid = "";
-                        int x = 0;
-                        int y = 0;
-
-                        var lines = File.ReadLines(iconXMLPath); // open the xml file
-                        foreach (var line in lines) // parse xml file for 
+                        if (uuid != "" && uuid != "Empty") // if previous line set a uuid
                         {
-                            if (uuid != "" && uuid != "Empty") // if previous line set a uuid
+                            // parse line for coordinates
+                            int substringStart = line.IndexOf('"') + 1;
+                            int substringLen = line.IndexOf('"', substringStart) - substringStart;
+                            string[] strCoords = line.Substring(substringStart, substringLen).Split(" ");
+                            x = int.Parse(strCoords[0]);
+                            y = int.Parse(strCoords[1]);
+
+                            singleIcon = iconMap.Clone(new Rectangle(x, y, 74, 74), iconMap.PixelFormat); // crop icon from IconMap
+
+                            try
                             {
-                                // parse line for coordinates
-                                int substringStart = line.IndexOf('"') + 1;
-                                int substringLen = line.IndexOf('"', substringStart) - substringStart;
-                                string[] strCoords = line.Substring(substringStart, substringLen).Split(" ");
-                                x = int.Parse(strCoords[0]);
-                                y = int.Parse(strCoords[1]);
-
-                                singleIcon = iconMap.Clone(new Rectangle(x, y, 74, 74), iconMap.PixelFormat); // crop icon from IconMap
-
-                                try
-                                {
-                                    singleIcon.Save($"{exportPath}\\{uuid}.png", ImageFormat.Png); // save individual icon
-                                    successCount++;
-                                }
-                                catch (Exception)
-                                {
-                                    failCount++;
-                                }
-
-                                singleIcon.Dispose();
-                                uuid = ""; // clear uuid
+                                singleIcon.Save($"{exportPath}\\{uuid}.png", ImageFormat.Png); // save individual icon
+                                successCount++;
                             }
-                            if (line.Contains("<I")) // lines containing the uuid start with "<I"
+                            catch (Exception)
                             {
-                                // parse line for uuid
-                                int substringStart = line.IndexOf('"') + 1;
-                                int substringLen = line.IndexOf('"', substringStart) - substringStart;
-                                uuid = line.Substring(substringStart, substringLen);
+                                failCount++;
                             }
+
+                            singleIcon.Dispose();
+                            uuid = ""; // clear uuid
+                        }
+                        if (line.Contains("<I")) // lines containing the uuid start with "<I"
+                        {
+                            // parse line for uuid
+                            int substringStart = line.IndexOf('"') + 1;
+                            int substringLen = line.IndexOf('"', substringStart) - substringStart;
+                            uuid = line.Substring(substringStart, substringLen);
                         }
                     }
+                    
                     iconMap.Dispose(); // dispose iconMap
                     if (singleIcon != null) singleIcon.Dispose(); // dispose singleIcon
 

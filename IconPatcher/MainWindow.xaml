@@ -6,142 +6,152 @@
         xmlns:local="clr-namespace:IconPatcher"
         mc:Ignorable="d"
         Title="MJMBuilds - Custom Icon Tool for Scrap Mechanic" Height="600" Width="600"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
+        Background="WhiteSmoke" 
         >
     <Window.Resources>
 
         <Style TargetType="ListView">
-            <Setter Property="MinHeight" Value="6"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Background" Value="WhiteSmoke"/>
+            <Setter Property="Background" Value="White"/>
         </Style>
 
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="5,0,0,0"/>
-        </Style>
-        
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-    
-        <ScrollViewer>
+
+        <Rectangle Grid.Row="0" Height="2" Fill="Silver"/>
+        <Image Grid.Row="0" Grid.RowSpan="2" Opacity="0.2" Margin="0,2,16,0" Width="45" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Image.Source>
+                <BitmapImage UriSource="/Images/MJM3_45x40.png"/>
+            </Image.Source>
+        </Image>
+
+        <!-- Main Content ******************************************************** -->
+        <Grid Grid.Row="1" Margin="20,5,20,5">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
-                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <!-- 0 Mods Titlebar -->
                     <RowDefinition Height="auto"/>
-                    <!-- 1 Mods -->
                     <RowDefinition Height="auto"/>
-                    <!-- 2 Mods Instructions -->
+                    <RowDefinition Height="150"/>
                     <RowDefinition Height="auto"/>
-                    <!-- 3 UUIDs Titlebar -->
                     <RowDefinition Height="auto"/>
-                    <!-- 4 UUIDs -->
-                    <RowDefinition Height="auto"/>
-                    <!-- 5 Filler -->
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Mods Titlebar ******************************************************** -->
-                <Grid Grid.Row="0" Grid.Column="1" Margin="0,5,0,0">
+                <!-- Mod Description ********************************************* -->
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="3">
+		            <Run Text="To add a mod:"/>
+		            <LineBreak/>
+		            <Run Text="-Navigate to your mod's Gui folder and select the IconMap.png file."/>
+                </TextBlock>
+
+                <!-- Mod Buttons ************************************************* -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,2">
+                    <Button Content="Add Mod" Width="100" Click="BtnAddMod_Click" Margin="0,0,2,0"/>
+                    <Button x:Name="BtnRemoveMod" Content="Remove Mod" Width="100" Click="BtnRemoveMod_Click"/>
+                </StackPanel>
+
+                <!-- Mod ListView ************************************************ -->
+                <ScrollViewer Grid.Row="2">
+                    <ListView x:Name="ListViewMods" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewMods_Select">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding ModName}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollViewer>
+
+                <!-- Part Description ******************************************** -->
+                <TextBlock Grid.Row="3" Margin="0,5,0,0">
+		            <Run Text="To add a custom icon:"/>
+		            <LineBreak/>
+		            <Run Text="-Add the UUID of the part (Ex: 123e4567-e89b-12d3-a456-426655440000 )."/>
+
+		            <LineBreak/>
+		            <Run Text="-The custom icon must be a 74 x 74px .png file named by the UUID and "/>
+		            <LineBreak/>
+		            <Run Text="  placed in a folder named 'Custom' inside the 'Gui' folder of your mod."/>
+		            <LineBreak/>
+		            <Run Text="  (Ex: ...\Mods\YourModName\Gui\Custom\123e4567-e89b-12d3-a456-426655440000.png )."/>
+                </TextBlock>
+
+                <!-- Part Buttons ************************************************ -->
+                <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,5,0,2">
+                    <Button x:Name="BtnAddPart" Content="Add UUID" Width="100" Click="BtnAddPart_Click" Margin="0,0,2,0"/>
+                    <Button x:Name="BtnRemovePart" Content="Remove UUID" Width="100" Click="BtnRemovePart_Click"/>
+                </StackPanel>
+
+                <!-- Part ListView *********************************************** -->
+                <Grid Grid.Row="5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="32"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Margin="5" Grid.ColumnSpan="3">
-                        <Run Text="To add a mod:"/>
-                        <LineBreak/>
-                        <Run Text="-Navigate to your mod's Gui folder and select the IconMap.png file."/>
-                    </TextBlock>
-                    <Button Grid.Row="1" Content="Add Mod" Width="100" Click="BtnAddMod_Click"/>
-                    <Button Grid.Row="1" Grid.Column="1" x:Name="BtnRemoveMod" Content="Remove Mod" Width="100" Click="BtnRemoveMod_Click" IsEnabled="False"/>
-                    <Button Grid.Row="0" Grid.Column="2" Grid.RowSpan="1" x:Name="BtnGenerateIcons" HorizontalAlignment="Right" Content="GENERATE ICONS" Width="120" Click="BtnGenerateIcons_Click" Margin="10,5,5,0" IsEnabled="False"/>
-                    <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Vertical" HorizontalAlignment="Right" Margin="0,2,19,0">
-                        <RadioButton x:Name="RadioBtnReplace" Content="Replace Original" IsChecked="True"/>
-                        <RadioButton x:Name="RadioBtnNew" Content="Make New Copy"/>
-                    </StackPanel>
-                </Grid>
 
-                <!-- Mods **************************************************************** -->
-                <ListView Grid.Row="2" Grid.Column="1" x:Name="ListViewMods" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewMods_Select">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding ModName}"/>
+                    <ScrollViewer Grid.Column="0" Width="260" HorizontalAlignment="Left">
+                        <ListView x:Name="ListViewParts" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewParts_Select"/>
+                    </ScrollViewer>
+                    <!-- Execute Buttons ***************************************** -->
+                    <Border Grid.Column="1" BorderBrush="DarkGray" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Width="230" Margin="5,0,0,2" Text="Generate new IconMap with custom icons."/>
+                                <Button x:Name="BtnGenerateIcons" Content="Generate IconMap" Height="44" Width="226" Click="BtnGenerateIcons_Click"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,1,0,0">
+                                    <RadioButton x:Name="RadioBtnReplace" Content="Replace Original" IsChecked="True"/>
+                                    <RadioButton x:Name="RadioBtnNew" Content="Make New Copy" Margin="10,0,0,0"/>
+                                </StackPanel>
                             </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-
-                <!-- UUIDs Titlebar ******************************************************* -->
-                <Grid Grid.Row="3" Grid.Column="1" Margin="0,5,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="32"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.ColumnSpan="3" Margin="5">
-                        <Run Text="To add a custom icon:"/>
-                        <LineBreak/>
-                        <Run Text="-Add the UUID of the part (Ex: 123e4567-e89b-12d3-a456-426655440000 )."/>
-
-                        <LineBreak/>
-                        <Run Text="-The custom icon must be a 74 x 74px .png file named by the UUID and "/>
-                        <LineBreak/>
-                        <Run Text="  placed in a folder named 'Custom' inside the 'Gui' folder of your mod."/>
-                        <LineBreak/>
-                        <Run Text="  (Ex: ...\Mods\YourModName\Gui\Custom\123e4567-e89b-12d3-a456-426655440000.png )."/>
-                    </TextBlock>
-                    <Button Grid.Row="1" x:Name="BtnAddPart" Content="Add UUID" Width="100" Click="BtnAddPart_Click" IsEnabled="False"/>
-                    <Button Grid.Row="1" x:Name="BtnRemovePart" Grid.Column="1" Content="Remove UUID" Width="100" Click="BtnRemovePart_Click" IsEnabled="False"/>
+                            <Rectangle Grid.Row="1" Height="1" Fill="DarkGray"/>
+                            <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Margin="0,0,0,2">
+                                <Run Text="Split IconMap into individual icons."/>
+                                <LineBreak/>
+                                <Run Text="Icons will be exported to folder:"/>
+                                <LineBreak/>
+                                <Run Text="   ...Mods\ModName\Gui\Exported\"/>
+                                </TextBlock>
+                                <Button x:Name="BtnExportIcons" Content="Export Icons" Height="32" Width="120" Click="BtnExportIcons_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
-
-                <!-- UUIDs *************************************************************** -->
-                <ListView Grid.Row="4" Grid.Column="1" x:Name="ListViewParts" SelectionMode="Single" Width="240" HorizontalAlignment="Left" PreviewMouseLeftButtonUp="ListViewParts_Select"/>
-
-                <!-- Icon Exporter ******************************************************* -->
-                <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Width="100" Text="Split IconMap into individual icons." TextWrapping="Wrap"/>
-                    <Button Grid.Row="1" Content="Export Icons" Height="32" Width="100" Click="BtnExportIcons_Click"/>
-                </Grid>
-                
             </Grid>
-        </ScrollViewer>
+        </Grid>
 
-        <!-- Footer ************************************************************** -->
-        <StackPanel Grid.Row="1" x:Name="FooterPanel" HorizontalAlignment="Stretch" Background="LightGray">
+        <!-- Footer Bar ********************************************************** -->
+        <StackPanel Grid.Row="2" x:Name="FooterPanel" HorizontalAlignment="Stretch" Background="LightGray">
             <TextBlock x:Name="FooterText" Text="" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <!-- Add Part Overlay ***************************************************** -->
-        <Border x:Name="OverlayUUID" Background="#cc666666" Visibility="Collapsed">
-            <StackPanel Orientation="Horizontal" Margin="30,100,30,0" Height="100" VerticalAlignment="Top" HorizontalAlignment="Center" Background="White">
-                <TextBlock Text="UUID" VerticalAlignment="Center" Margin="50,0,5,0"/>
-                <TextBox x:Name="TextBoxUUID" Text="" Width="220" Height="20" KeyDown="TextBoxUUID_KeyDown"/>
-                <Button Content="Enter" Width="60" Height="20" Click="BtnEnterUUID_Click"/>
-                <Button Content="Cancel" Width="60" Height="20" Margin="5,0,50,0" Click="BtnCancelUUID_Click"/>
+        <Border Grid.Row="0" Grid.RowSpan="2" x:Name="OverlayUUID" Background="#cc666666" Visibility="Collapsed">
+            <StackPanel Orientation="Vertical" Margin="30,0" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Background="WhiteSmoke">
+                <TextBlock Margin="50,30,0,0">
+                    <Run Text="Enter UUID" FontWeight="Medium"/>
+                    <Run Text=" Ex: 123e4567-e89b-12d3-a456-426655440000" />
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                    <TextBox x:Name="TextBoxUUID" Margin="50,0,0,0" Text="" Width="250" Height="20" KeyDown="TextBoxUUID_KeyDown"/>
+                    <Button Content="Enter" Width="60" Height="20" Margin="2,0,0,0" Click="BtnEnterUUID_Click"/>
+                    <Button Content="Cancel" Width="60" Height="20" Margin="2,0,50,0" Click="BtnCancelUUID_Click"/>
+                </StackPanel>
             </StackPanel>
+            
+            
         </Border>
     </Grid>
 </Window>
