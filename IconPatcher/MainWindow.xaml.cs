@@ -112,5 +112,23 @@ namespace IconPatcher
         {
             _controller.ExportIcon(); // call Controller's ExportIcon() function
         }
+
+        // Delete key press in Mod ListView
+        private void ListViewMods_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete) // if Delete key was pressed
+            {
+                _controller.RemoveMod(); // call Controller's RemoveMod() function
+            }
+        }
+
+        // Delete key press in Part ListView
+        private void ListViewParts_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete) // if Delete key was pressed
+            {
+                _controller.RemovePart(); // call Controller's RemovePart() function
+            }
+        }
     }
 }

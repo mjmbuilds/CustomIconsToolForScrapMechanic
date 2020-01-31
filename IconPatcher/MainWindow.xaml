@@ -57,17 +57,16 @@
                 </StackPanel>
 
                 <!-- Mod ListView ************************************************ -->
-                <ScrollViewer Grid.Row="2">
-                    <ListView x:Name="ListViewMods" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewMods_Select">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding ModName}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </ScrollViewer>
+
+                <ListView x:Name="ListViewMods" Grid.Row="2" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewMods_Select" ScrollViewer.VerticalScrollBarVisibility="Visible" KeyDown="ListViewMods_KeyDown">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ModName}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
                 <!-- Part Description ******************************************** -->
                 <TextBlock Grid.Row="3" Margin="0,5,0,0">
@@ -96,9 +95,8 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <ScrollViewer Grid.Column="0" Width="260" HorizontalAlignment="Left">
-                        <ListView x:Name="ListViewParts" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewParts_Select"/>
-                    </ScrollViewer>
+                    <ListView x:Name="ListViewParts" Grid.Column="0" Width="260" HorizontalAlignment="Left" SelectionMode="Single" PreviewMouseLeftButtonUp="ListViewParts_Select" ScrollViewer.VerticalScrollBarVisibility="Visible" KeyDown="ListViewParts_KeyDown"/>
+
                     <!-- Execute Buttons ***************************************** -->
                     <Border Grid.Column="1" BorderBrush="DarkGray" BorderThickness="1">
                         <Grid>
