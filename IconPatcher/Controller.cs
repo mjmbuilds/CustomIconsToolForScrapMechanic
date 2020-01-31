@@ -280,7 +280,7 @@ namespace IconPatcher
                         }
                     }
 
-                    string completionMessage = $"{successCount} Custom Icons Sucessfully Added.{errors}"; // Build completion message
+                    string completionMessage = $"{successCount} Custom Icons Sucessfully Added.{errors}"; // build completion message
                     if (saveNewOverride == true) // if original file failed to overwrite, add message that new file was made instead
                     {
                         completionMessage = "NOTE: Could not overwrite original IconMap.png image.\nA new copy has been saved instead.\n\n" + completionMessage;
@@ -295,5 +295,91 @@ namespace IconPatcher
             }
         }
 
+        // Exports individual icons extracted from the IconMap.png
+        public void ExportIcon()
+        {
+            int selectedMod = _view.ListViewMods.SelectedIndex;
+            if (selectedMod != -1)
+            {
+                string guiPath = _model.Mods[selectedMod].ModFilePath + "\\Gui\\"; // file path to mod GUI folder
+                string iconMapPathOrig = guiPath + "IconMap.png"; // file path to original IconMap.png
+                string iconXMLPath = guiPath + "IconMap.xml"; // file path to IconMap.xml
+                string exportPath = guiPath + "Exported"; // file path to export folder
+                int successCount = 0; // number of icons successfuly exported
+                int failCount = 0; // number of icons failed to exported
+
+                if (!Directory.Exists(exportPath))
+                {
+                    Directory.CreateDirectory(exportPath); // create directory
+                }
+
+                try
+                {
+                    if (!File.Exists(iconXMLPath))
+                    {
+                        throw new Exception(); // if IconMap.xml wasn't found, throw exteption
+                    }
+                    Bitmap singleIcon = null; // for individual icons
+                    Bitmap iconMap = new Bitmap(iconMapPathOrig); // load the original iconMap image
+
+                    using (Graphics gr = Graphics.FromImage(iconMap))
+                    {
+                        string uuid = "";
+                        int x = 0;
+                        int y = 0;
+
+                        var lines = File.ReadLines(iconXMLPath); // open the xml file
+                        foreach (var line in lines) // parse xml file for 
+                        {
+                            if (uuid != "" && uuid != "Empty") // if previous line set a uuid
+                            {
+                                // parse line for coordinates
+                                int substringStart = line.IndexOf('"') + 1;
+                                int substringLen = line.IndexOf('"', substringStart) - substringStart;
+                                string[] strCoords = line.Substring(substringStart, substringLen).Split(" ");
+                                x = int.Parse(strCoords[0]);
+                                y = int.Parse(strCoords[1]);
+
+                                singleIcon = iconMap.Clone(new Rectangle(x, y, 74, 74), iconMap.PixelFormat); // crop icon from IconMap
+
+                                try
+                                {
+                                    singleIcon.Save($"{exportPath}\\{uuid}.png", ImageFormat.Png); // save individual icon
+                                    successCount++;
+                                }
+                                catch (Exception)
+                                {
+                                    failCount++;
+                                }
+
+                                singleIcon.Dispose();
+                                uuid = ""; // clear uuid
+                            }
+                            if (line.Contains("<I")) // lines containing the uuid start with "<I"
+                            {
+                                // parse line for uuid
+                                int substringStart = line.IndexOf('"') + 1;
+                                int substringLen = line.IndexOf('"', substringStart) - substringStart;
+                                uuid = line.Substring(substringStart, substringLen);
+                            }
+                        }
+                    }
+                    iconMap.Dispose(); // dispose iconMap
+                    if (singleIcon != null) singleIcon.Dispose(); // dispose singleIcon
+
+                    string completionMessage = $"{successCount} Icons Sucessfully Exported."; // build completion message
+                    if (failCount > 0)
+                    {
+                        completionMessage += $"\n\nERROR: {failCount} Icons Failed to Export!";
+                    }
+                    MessageBox.Show(completionMessage, "Complete", MessageBoxButton.OK, MessageBoxImage.None); // display completion message
+                }
+                catch (Exception) // catches any exeptions thrown working with IconMap.xml or IconMap.png
+                {
+                    string errorMessage = "Could not export icons.\nIconMap files may be missing or mod path may be incorrect.";
+                    MessageBox.Show(errorMessage, "Failed", MessageBoxButton.OK, MessageBoxImage.None);
+                }
+            }
+        }
     }
 }

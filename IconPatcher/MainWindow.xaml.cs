@@ -76,7 +76,7 @@ namespace IconPatcher
         // Enter button pressed in UUID overlay
         private void BtnEnterUUID_Click(object sender, RoutedEventArgs e)
         {
-            _controller.AddPart(TextBoxUUID.Text); // call Controller's
+            _controller.AddPart(TextBoxUUID.Text); // call Controller's AddPart() function
             closeOverlayUUID();
         }
 
@@ -105,6 +105,12 @@ namespace IconPatcher
         {
             OverlayUUID.Visibility = Visibility.Collapsed; // collapse overlay visibility
             TextBoxUUID.Text = ""; // clear text box
+        }
+
+        // Export Icons Button
+        private void BtnExportIcons_Click(object sender, RoutedEventArgs e)
+        {
+            _controller.ExportIcon(); // call Controller's ExportIcon() function
         }
     }
 }

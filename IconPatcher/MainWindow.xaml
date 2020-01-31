@@ -36,17 +36,17 @@
                     <ColumnDefinition Width="20"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <!-- Mods Titlebar -->
+                    <!-- 0 Mods Titlebar -->
                     <RowDefinition Height="auto"/>
-                    <!-- Mods -->
+                    <!-- 1 Mods -->
                     <RowDefinition Height="auto"/>
-                    <!-- Mods Instructions -->
+                    <!-- 2 Mods Instructions -->
                     <RowDefinition Height="auto"/>
-                    <!-- UUIDs Titlebar -->
+                    <!-- 3 UUIDs Titlebar -->
                     <RowDefinition Height="auto"/>
-                    <!-- UUIDs -->
+                    <!-- 4 UUIDs -->
                     <RowDefinition Height="auto"/>
-                    <!-- Filler -->
+                    <!-- 5 Filler -->
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -114,9 +114,18 @@
                 </Grid>
 
                 <!-- UUIDs *************************************************************** -->
-                <ListView Grid.Row="4" Grid.Column="1" x:Name="ListViewParts" SelectionMode="Single" Width="240" HorizontalAlignment="Left" PreviewMouseLeftButtonUp="ListViewParts_Select">
-                    
-                </ListView>
+                <ListView Grid.Row="4" Grid.Column="1" x:Name="ListViewParts" SelectionMode="Single" Width="240" HorizontalAlignment="Left" PreviewMouseLeftButtonUp="ListViewParts_Select"/>
+
+                <!-- Icon Exporter ******************************************************* -->
+                <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Width="100" Text="Split IconMap into individual icons." TextWrapping="Wrap"/>
+                    <Button Grid.Row="1" Content="Export Icons" Height="32" Width="100" Click="BtnExportIcons_Click"/>
+                </Grid>
+                
             </Grid>
         </ScrollViewer>
 
