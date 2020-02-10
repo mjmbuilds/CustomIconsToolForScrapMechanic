@@ -6,7 +6,7 @@ I created this tool to patch the generated icon maps with custom icons for speci
 
 This is useful if you want to use some custom icons, but don't want to manually re-edit the icon map using an image editor every time you add something new to your mod.
 
-![](screenshot01.png)
+![](images/screenshot01.png)
 
 To use this tool, you would first generate your icon map using the official mod tool, then run this tool to patch the custom icons. 
 
